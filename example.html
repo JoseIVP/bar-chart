@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarChart example</title>
+</head>
+<body>
+    <bar-chart></bar-chart>
+    <script type="module">
+        import BarChart from './BarChart.js';
+        customElements.define('bar-chart', BarChart);
+        const chart = document.querySelector('bar-chart');
+        chart.plot({
+            size: 10,
+            gapFraction: 0.05,
+            padding: 30,
+            yLabels: [0, 2, 4, 6, 8],
+            maxValue: 8,
+            yLabelsGap: 10,
+            values: [8, 5, 2, 4, 6, 2, 1, 6, 3, 8],
+            xLabels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        });
+    </script>
+</body>
+</html>
