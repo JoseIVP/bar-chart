@@ -38,10 +38,33 @@ export default class BarChart extends HTMLElement{
             <style>
                 svg{
                     display: block;
+                    width: var(--width);
+                    height: var(--height);
+                    box-shadow: var(--box-shadow);
+                    margin: var(--margin, 0);
+                    border: var(--border);
+                    border-radius: var(--border-radius);
+                }
+
+                .background{
+                    fill: var(--background-fill, #EEEEEE);
+                }
+
+                .bar{
+                    fill: var(--bar-fill, #BDBDBD);
+                    stroke: var(--bar-stroke, #9E9E9E);
+                    stroke-width: var(--bar-stroke-width, 2);
+                    rx: var(--bar-rx, 2);
+                    ry: var(--bar-ry, 2);
+                }
+
+                text{
+                    fill: var(--labels-fill, #616161);
+                    font: var(--labels-font, 16px Arial, Helvetica, sans-serif)
                 }
             </style>
             <svg>
-                <rect fill="red" width="100%" height="100%"/>
+                <rect class="background" width="100%" height="100%"/>
             </svg>
         `;
         this.#svgRoot = this.shadowRoot.querySelector('svg');

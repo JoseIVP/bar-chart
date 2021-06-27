@@ -7,14 +7,24 @@
     <title>BarChart example</title>
 </head>
 <body>
+    <style>
+        bar-chart{
+            --width: min(100%, 800px);
+            --margin: 100px auto;
+            --border-radius: 5px;
+            --box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
     <bar-chart></bar-chart>
+    
     <script type="module">
         import BarChart from './BarChart.js';
         customElements.define('bar-chart', BarChart);
         const chart = document.querySelector('bar-chart');
         chart.plot({
             size: 10,
-            gapFraction: 0.05,
+            gapFraction: 0.1,
             padding: 30,
             yLabels: [0, 2, 4, 6, 8],
             maxValue: 8,
