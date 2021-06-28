@@ -33,6 +33,10 @@ export default class BarChart extends HTMLElement{
     #xLegendElement;
     #yLegendElement;
     #yLegendGap;
+    #title;
+    #titleHeight;
+    #titleGap;
+    #yLabelsMapping;
     
     constructor(){
         super();
@@ -92,20 +96,24 @@ export default class BarChart extends HTMLElement{
         const maxYLabelValue = this.#yLabels[this.#yLabels.length - 1];
         this.#maxValue = options.maxValue ?? maxYLabelValue ??  null;
         this.#yLabelsGap = options.yLabelsGap ?? 0;
-        this.#xLegend = options.xLegend ?? null ;
+        this.#xLegend = options.xLegend ?? null;
         this.#yLegend = options.yLegend ?? null;
         this.#yLegendGap = options.yLegendGap ?? 0;
-        
+        this.#title = options.title ?? null;
+        this.#titleGap = options.titleGap ?? 0;
+        this.#yLabelsMapping = options.yLabelsMapping ?? null;
+
         this.#svgRoot.setAttribute('viewBox', `0 0 ${this.#width} ${this.#height}`);
         this.#initLabels();
         this.#initBars();
     }
     
     #initLabels(){
+        this.#positionTitle();
         this.#measureXLegendHeight();
         this.#measureYLegendWidth();
         this.#measureXLabelsHeight();
-        this.#contentHeight = this.#height - 2 * this.#padding - this.#xLabelsHeight - this.#xLegendHeight;
+        this.#contentHeight = this.#height - 2 * this.#padding - this.#titleHeight - this.#titleGap - this.#xLabelsHeight - this.#xLegendHeight;
         this.#measureYLabelsWidth();
         this.#contentWidth = this.#width - 2 * this.#padding - this.#yLabelsWidth - this.#yLabelsGap - this.#yLegendWidth - this.#yLegendGap;
         this.#gapWidth = this.#contentWidth * this.#gapFraction / (this.#size - 1);
@@ -116,14 +124,29 @@ export default class BarChart extends HTMLElement{
         this.#positionYLabels();
     }
 
+    #positionTitle(){
+        if(this.#title){
+            const title = createSVGElement('text');
+            title.textContent = this.#title;
+            title.setAttribute('class', 'title');
+            this.#svgRoot.appendChild(title);
+            const {width, height} = title.getBBox();
+            const x = this.#width / 2 - width / 2;
+            const y = this.#padding + height;
+            title.setAttribute('transform', `translate(${x} ${y})`);
+            this.#titleHeight = height;
+        }else{
+            this.#titleHeight = 0;
+        }
+    }
+
     #measureXLegendHeight(){
         if(this.#xLegend){
             const legend = createSVGElement('text');
             legend.textContent = this.#xLegend;
             legend.setAttribute('class', 'xLegend');
             this.#svgRoot.appendChild(legend);
-            const {height} = legend.getBBox();
-            this.#xLegendHeight = height;
+            this.#xLegendHeight = legend.getBBox().height;
             this.#xLegendElement = legend;
         }else{
             this.#xLegendHeight = 0;
@@ -137,8 +160,7 @@ export default class BarChart extends HTMLElement{
             legend.textContent = this.#yLegend;
             legend.setAttribute('class', 'yLegend');
             this.#svgRoot.appendChild(legend);
-            const {height} = legend.getBBox();
-            this.#yLegendWidth = height;
+            this.#yLegendWidth = legend.getBBox().height;
             this.#yLegendElement = legend;
         }else{
             this.#yLegendWidth = 0;
@@ -170,10 +192,14 @@ export default class BarChart extends HTMLElement{
         // horizontal space they use:
         this.#yLabelElements = [];
         let maxHorizontalSpace = 0;
-        for(const labelValue of this.#yLabels){
+        for(let i=0; i<this.#yLabels.length; i++){
             const label = createSVGElement('text');
             label.setAttribute('class', 'yLabel');
-            label.textContent = labelValue;
+            if(this.#yLabelsMapping){
+                label.textContent = this.#yLabelsMapping[i];
+            }else{
+                label.textContent = this.#yLabels[i];
+            }
             this.#svgRoot.append(label);
             this.#yLabelElements.push(label);
             const {width} = label.getBBox();
@@ -195,7 +221,7 @@ export default class BarChart extends HTMLElement{
         if(this.#yLegendElement){
             const {width, height} = this.#yLegendElement.getBBox();
             const x = this.#padding + height;
-            const y = this.#padding + this.#contentHeight / 2 + width / 2;
+            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight / 2 + width / 2;
             this.#yLegendElement.setAttribute('transform', `translate(${x} ${y}) rotate(-90)`);
         }
     }
@@ -209,7 +235,7 @@ export default class BarChart extends HTMLElement{
             const {width, height} = label.getBBox();
             const horizontalSpace = Math.sin(rotation) * height + Math.cos(rotation) * width;
             const verticalSpace = Math.sin(rotation) * width + Math.cos(rotation) * height;
-            const y = this.#padding + this.#contentHeight + verticalSpace;
+            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight + verticalSpace;
             const x = this.#width - this.#padding - this.#contentWidth + i * (this.#barWidth + this.#gapWidth) + this.#barWidth / 2 - horizontalSpace / 2 + Math.sin(rotation) * height;
             label.setAttribute('transform', `translate(${x} ${y}) rotate(-${this.#xLabelsRotation})`);
         }
@@ -222,7 +248,7 @@ export default class BarChart extends HTMLElement{
             const labelValue = this.#yLabels[i];
             const label = this.#yLabelElements[i];
             const {width, height} = label.getBBox();
-            const y = this.#padding + this.#contentHeight - this.#contentHeight * (labelValue - this.#minValue) / (this.#maxValue - this.#minValue) + height / 2;
+            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - this.#contentHeight * (labelValue - this.#minValue) / (this.#maxValue - this.#minValue) + height / 2;
             label.setAttribute('y', y);
             const x = this.#padding + this.#yLegendWidth + this.#yLegendGap + this.#yLabelsWidth - width;
             label.setAttribute('x', x);
@@ -252,7 +278,7 @@ export default class BarChart extends HTMLElement{
         this.#bars.forEach((bar, i) => {
             const height = this.#contentHeight * (values[i] - min) / (max - min);
             bar.setAttribute('height', height);
-            bar.setAttribute('y', this.#padding + this.#contentHeight - height)
+            bar.setAttribute('y', this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - height)
         });
     }
     
