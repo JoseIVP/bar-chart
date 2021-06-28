@@ -37,6 +37,7 @@ export default class BarChart extends HTMLElement{
     #titleHeight;
     #titleGap;
     #yLabelsMapping;
+    #showHorizontalLines;
     
     constructor(){
         super();
@@ -73,6 +74,11 @@ export default class BarChart extends HTMLElement{
                     fill: var(--labels-fill, #616161);
                     font: var(--labels-font, 16px Arial, Helvetica, sans-serif)
                 }
+
+                .horizontalLine{
+                    stroke: var(--horizontal-line-stroke, #BDBDBD);
+                    stroke-width: var(--horizontal-line-stroke-width, 2);
+                }
             </style>
             <svg>
                 <rect class="background" width="100%" height="100%"/>
@@ -102,6 +108,7 @@ export default class BarChart extends HTMLElement{
         this.#title = options.title ?? null;
         this.#titleGap = options.titleGap ?? 0;
         this.#yLabelsMapping = options.yLabelsMapping ?? null;
+        this.#showHorizontalLines = options.showHorizontalLines ?? true;
 
         this.#svgRoot.setAttribute('viewBox', `0 0 ${this.#width} ${this.#height}`);
         this.#initLabels();
@@ -248,10 +255,21 @@ export default class BarChart extends HTMLElement{
             const labelValue = this.#yLabels[i];
             const label = this.#yLabelElements[i];
             const {width, height} = label.getBBox();
-            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - this.#contentHeight * (labelValue - this.#minValue) / (this.#maxValue - this.#minValue) + height / 2;
-            label.setAttribute('y', y);
+            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - this.#contentHeight * (labelValue - this.#minValue) / (this.#maxValue - this.#minValue);
+            label.setAttribute('y', y + height / 2);
             const x = this.#padding + this.#yLegendWidth + this.#yLegendGap + this.#yLabelsWidth - width;
             label.setAttribute('x', x);
+            if(this.#showHorizontalLines){
+                const line = createSVGElement('line');
+                this.#svgRoot.appendChild(line);
+                line.setAttribute('class', 'horizontalLine');
+                const x1 = this.#width - this.#padding - this.#contentWidth;
+                const x2 = x1 + this.#contentWidth;
+                line.setAttribute('x1', x1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y1', y);
+                line.setAttribute('y2', y);
+            }
         }
     }
     
