@@ -2,6 +2,38 @@ function createSVGElement(tagName){
     return document.createElementNS('http://www.w3.org/2000/svg', tagName);
 }
 
+/**
+ * A web component for creating bar charts.
+ * Here is a list of all the CSS custom properties available:
+ * --background-fill
+ * --bar-fill
+ * --bar-rx
+ * --bar-ry
+ * --bar-stroke
+ * --bar-stroke-width
+ * --border
+ * --border-radius
+ * --box-shadow
+ * --default-text-fill
+ * --default-text-font
+ * --height
+ * --horizontal-line-stroke
+ * --horizontal-line-stroke-width
+ * --margin
+ * --text-fill
+ * --text-font
+ * --title-fill
+ * --title-font
+ * --width
+ * --x-label-fill
+ * --x-label-font
+ * --x-legend-fill
+ * --x-legend-font
+ * --y-label-fill
+ * --y-label-font
+ * --y-legend-fill
+ * --y-legend-font
+ */
 export default class BarChart extends HTMLElement{
 
     #bars;
@@ -46,9 +78,12 @@ export default class BarChart extends HTMLElement{
     constructor(){
         super();
         this.attachShadow({mode: 'open'});
-        this.#render();
     }
     
+    /**
+     * Renders the component's HTML and base SVG tags.
+     * @private
+     */
     #render(){
         this.shadowRoot.innerHTML = /*html*/`
             <style>
@@ -76,7 +111,6 @@ export default class BarChart extends HTMLElement{
                     ry: var(--bar-ry, 2);
                 }
 
-                
                 .title{
                     fill: var(--title-fill, var(--default-text-fill));
                     font: var(--title-font, var(--default-text-font));
@@ -114,30 +148,72 @@ export default class BarChart extends HTMLElement{
         this.#svgRoot = this.shadowRoot.querySelector('svg');
     }
     
+    /**
+     * Configures and shows the chart.
+     * @param {Object} [options] - The options for the chart.
+     * @param {number} [options.size=10] - The number of values to plot.
+     * @param {number} [options.width=600] - The width of the SVG viewport.
+     * @param {number} [options.height=400] - The height of the SVG viewport.
+     * @param {number} [options.padding=10] - The padding around the chart.
+     * @param {number} [options.gapFraction=0.2] - The fraction of the content
+     * to use for the gaps between the bars.
+     * @param {number} [options.values=[]] - The values to plot.
+     * @param {number} [options.minValue=0] - The minimum value to plot, i.e.
+     * the value for which the height of the bars is 0.
+     * @param {number} [options.maxValue] - The maximum value to plot, i.e. the
+     * value for which the height of the bar is at the top. By default it is the
+     * value of the maximum label provided for the Y axis, if those are present.
+     * If there are no labels for the Y axis, then the hight of the bars will be
+     * relative to the height of the bar with the maximum value.
+     * @param {*[]} [options.xLabels=[]] - The labels of the X axis.
+     * @param {number} [options.xLabelsGap=0] - The gap between the labels of
+     * the X axis and the bars of the chart.
+     * @param {number} [options.xLabelsRotation=0] - The rotation in degrees of
+     * the labels in the X axis.
+     * @param {number[]} [options.yLabels=[]] - The labels of the Y axis.
+     * @param {number} [options.yLabelsGap=0] - The gap between the Y axis
+     * labels and the bars.
+     * @param {string[]} [options.yLabelsMapping=null] - If given, should be an
+     * array of the same size than options.yLabels. Each label in
+     * options.yLabels will be replaced in the chart by the corresponding value
+     * in this array.
+     * @param {string} [options.xLegend=null] - The legend of the X axis.
+     * @param {number} [options.xLegendGap=0] - The gap between the legend of
+     * the X axis and the labels of the same axis.
+     * @param {string} [options.yLegend=null] - The legend of the Y axis.
+     * @param {number} [options.yLegendGap=0] - The gap between the Y axis
+     * legend and the Y axis labels.
+     * @param {string} [options.title=null] - The title of the chart.
+     * @param {number} [options.titleGap=0] - The gap between the title of the
+     * chart and the bars.
+     * @param {boolean} [options.showHorizontalLines=true] - true if the chart
+     * should show horizontal bars for each of the labels in options.yLabels,
+     * false otherwise.
+     */
     plot(options={}){
         this.#size = options.size ?? 10;
         this.#width = options.width ?? 600;
         this.#height = options.height ?? 400;
         this.#padding = options.padding ?? 10;
-        this.#xLabelsRotation = options.xLabelsRotation ?? 0;
         this.#gapFraction = options.gapFraction ?? 0.2;
         this.#xLabels = options.xLabels ?? [];
+        this.#xLabelsGap = options.xLabelsGap ?? 0;
+        this.#xLabelsRotation = options.xLabelsRotation ?? 0;
         this.#yLabels = options.yLabels ?? [];
+        this.#yLabelsGap = options.yLabelsGap ?? 0;
+        this.#yLabelsMapping = options.yLabelsMapping ?? null;
         this.#values = options.values ?? [];
         this.#minValue = options.minValue ?? 0;
-        const maxYLabelValue = this.#yLabels[this.#yLabels.length - 1];
-        this.#maxValue = options.maxValue ?? maxYLabelValue ??  null;
-        this.#yLabelsGap = options.yLabelsGap ?? 0;
+        this.#maxValue = options.maxValue ?? (this.#yLabels.length > 0 ? Math.max(...this.#yLabels) : null);
         this.#xLegend = options.xLegend ?? null;
+        this.#xLegendGap = options.xLegendGap ?? 0;
         this.#yLegend = options.yLegend ?? null;
         this.#yLegendGap = options.yLegendGap ?? 0;
         this.#title = options.title ?? null;
         this.#titleGap = options.titleGap ?? 0;
-        this.#yLabelsMapping = options.yLabelsMapping ?? null;
         this.#showHorizontalLines = options.showHorizontalLines ?? true;
-        this.#xLabelsGap = options.xLabelsGap ?? 0;
-        this.#xLegendGap = options.xLegendGap ?? 0;
 
+        this.#render();
         this.#svgRoot.setAttribute('viewBox', `0 0 ${this.#width} ${this.#height}`);
         this.#positionTitle();
         this.#measureXLegendHeight();
@@ -157,6 +233,11 @@ export default class BarChart extends HTMLElement{
         this.#positionBars();
     }
 
+    /**
+     * Creates and positions the title of the chart, if there is one. And
+     * measures its height.
+     * @private
+     */
     #positionTitle(){
         if(this.#title){
             const title = createSVGElement('text');
@@ -173,6 +254,11 @@ export default class BarChart extends HTMLElement{
         }
     }
 
+    /**
+     * Creates the legend for the X axis if there is one, and measures the
+     * vertical space it uses from the chart.
+     * @private
+     */
     #measureXLegendHeight(){
         if(this.#xLegend){
             const legend = createSVGElement('text');
@@ -187,12 +273,19 @@ export default class BarChart extends HTMLElement{
         }
     }
 
+    /**
+     * Creates the legend for the Y axis if there is one, and measures the
+     * horizontal space it uses from the chart.
+     * @private
+     */
     #measureYLegendWidth(){
         if(this.#yLegend){
             const legend = createSVGElement('text');
             legend.textContent = this.#yLegend;
             legend.setAttribute('class', 'y-legend');
             this.#svgRoot.appendChild(legend);
+            // The label will be rotated in 90 degrees, so the horizontal space
+            // it uses corresponds to its height.
             this.#yLegendWidth = legend.getBBox().height;
             this.#yLegendElement = legend;
         }else{
@@ -201,7 +294,13 @@ export default class BarChart extends HTMLElement{
         }
     }
     
+    /**
+     * Creates the labels for the X axis and measures the maximum vertical space
+     * used by them.
+     * @private
+     */
     #measureXLabelsHeight(){
+        // Transform the rotation from degrees to radians
         const rotation = Math.PI / 180 * this.#xLabelsRotation;
         let maxVerticalSpace = 0;
         this.#xLabelElements = [];
@@ -211,6 +310,8 @@ export default class BarChart extends HTMLElement{
             this.#svgRoot.appendChild(label);
             this.#xLabelElements.push(label);
             label.textContent = this.#xLabels[i];
+            // Calculate the vertical space used considering the rotation of the
+            // labels
             const {width, height} = label.getBBox();
             const verticalSpace = Math.sin(rotation) * width + Math.cos(rotation) * height;
             maxVerticalSpace = Math.max(maxVerticalSpace, verticalSpace);
@@ -218,12 +319,18 @@ export default class BarChart extends HTMLElement{
         this.#xLabelsHeight = maxVerticalSpace;
     }
     
+    /**
+     * Creates the labels for the Y axis and measures the maximum horizontal
+     * space used by them.
+     * @private
+     */
     #measureYLabelsWidth(){
         this.#yLabelElements = [];
         let maxHorizontalSpace = 0;
         for(let i=0; i<this.#yLabels.length; i++){
             const label = createSVGElement('text');
             label.setAttribute('class', 'y-label');
+            // If there is a mapping use it for the content of the label
             if(this.#yLabelsMapping){
                 label.textContent = this.#yLabelsMapping[i];
             }else{
@@ -255,7 +362,12 @@ export default class BarChart extends HTMLElement{
         }
     }
     
+    /**
+     * Positions the X axis labels, rotating them if that option was given.
+     * @private
+     */
     #positionXLabels(){
+        // Transform the rotation from degrees to radians
         const rotation = Math.PI / 180 * this.#xLabelsRotation;
         for(let i=0; i<this.#xLabelElements.length; i++){
             const label = this.#xLabelElements[i];
@@ -268,12 +380,18 @@ export default class BarChart extends HTMLElement{
         }
     }
     
+    /**
+     * Positions the Y axis labels and creates the horizontal lines at the
+     * corresponding Y coordinates.
+     * @private
+     */
     #positionYLabels(){
         for(let i=0; i<this.#yLabels.length; i++){
             const labelValue = this.#yLabels[i];
             const label = this.#yLabelElements[i];
             const {width, height} = label.getBBox();
-            const heightFraction = (labelValue - this.#minValue) / (this.#maxValue - this.#minValue); 
+            let heightFraction = (labelValue - this.#minValue) / (this.#maxValue - this.#minValue); 
+            heightFraction = Math.min(1, Math.max(0, heightFraction)); // Restrict the fraction to [0, 1]
             const y = this.#contentYStart + this.#contentHeight - this.#contentHeight * heightFraction;
             label.setAttribute('y', y + 1 / 3 * height);
             const x = this.#contentXStart - this.#yLabelsGap - width;
@@ -292,6 +410,11 @@ export default class BarChart extends HTMLElement{
         }
     }
     
+    /**
+     * Creates and positions the bars of the plot, also giving them a height if
+     * values where provided when plot() was called.
+     * @private
+     */
     #positionBars(){
         this.#bars = [];
         for(let i=0; i<this.#size; i++){
@@ -308,6 +431,11 @@ export default class BarChart extends HTMLElement{
         }
     }
     
+    /**
+     * Updates the bars of the chart with an array of values.
+     * @param {number[]} values - The array of values with which to update the
+     * chart.
+     */
     update(values){
         this.#values = values;
         const min = this.#minValue;
