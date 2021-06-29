@@ -38,7 +38,9 @@ export default class BarChart extends HTMLElement{
     #titleGap;
     #yLabelsMapping;
     #showHorizontalLines;
-    
+    #contentYStart;
+    #contentXStart;
+
     constructor(){
         super();
         this.attachShadow({mode: 'open'});
@@ -111,24 +113,22 @@ export default class BarChart extends HTMLElement{
         this.#showHorizontalLines = options.showHorizontalLines ?? true;
 
         this.#svgRoot.setAttribute('viewBox', `0 0 ${this.#width} ${this.#height}`);
-        this.#initLabels();
-        this.#initBars();
-    }
-    
-    #initLabels(){
         this.#positionTitle();
         this.#measureXLegendHeight();
         this.#measureYLegendWidth();
         this.#measureXLabelsHeight();
-        this.#contentHeight = this.#height - 2 * this.#padding - this.#titleHeight - this.#titleGap - this.#xLabelsHeight - this.#xLegendHeight;
+        this.#contentYStart = this.#padding + this.#titleHeight + this.#titleGap;
+        this.#contentHeight = this.#height - this.#contentYStart - this.#padding - this.#xLabelsHeight - this.#xLegendHeight;
         this.#measureYLabelsWidth();
-        this.#contentWidth = this.#width - 2 * this.#padding - this.#yLabelsWidth - this.#yLabelsGap - this.#yLegendWidth - this.#yLegendGap;
+        this.#contentXStart = this.#padding + this.#yLegendWidth + this.#yLegendGap + this.#yLabelsWidth + this.#yLabelsGap;
+        this.#contentWidth = this.#width - this.#contentXStart - this.#padding;
         this.#gapWidth = this.#contentWidth * this.#gapFraction / (this.#size - 1);
         this.#barWidth = this.#contentWidth * (1 - this.#gapFraction) / this.#size;
         this.#positionXLegend();
         this.#positionYLegend();
         this.#positionXLabels();
         this.#positionYLabels();
+        this.#positionBars();
     }
 
     #positionTitle(){
@@ -218,7 +218,7 @@ export default class BarChart extends HTMLElement{
     #positionXLegend(){
         if(this.#xLegendElement){
             const {width} = this.#xLegendElement.getBBox();
-            const x = this.#width - this.#padding - this.#contentWidth / 2 - width / 2;
+            const x = this.#contentXStart + this.#contentWidth / 2 - width / 2;
             const y = this.#height - this.#padding;
             this.#xLegendElement.setAttribute('transform', `translate(${x} ${y})`);
         }
@@ -228,7 +228,7 @@ export default class BarChart extends HTMLElement{
         if(this.#yLegendElement){
             const {width, height} = this.#yLegendElement.getBBox();
             const x = this.#padding + height;
-            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight / 2 + width / 2;
+            const y = this.#contentYStart + this.#contentHeight / 2 + width / 2;
             this.#yLegendElement.setAttribute('transform', `translate(${x} ${y}) rotate(-90)`);
         }
     }
@@ -242,8 +242,8 @@ export default class BarChart extends HTMLElement{
             const {width, height} = label.getBBox();
             const horizontalSpace = Math.sin(rotation) * height + Math.cos(rotation) * width;
             const verticalSpace = Math.sin(rotation) * width + Math.cos(rotation) * height;
-            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight + verticalSpace;
-            const x = this.#width - this.#padding - this.#contentWidth + i * (this.#barWidth + this.#gapWidth) + this.#barWidth / 2 - horizontalSpace / 2 + Math.sin(rotation) * height;
+            const y = this.#contentYStart + this.#contentHeight + verticalSpace;
+            const x = this.#contentXStart + i * (this.#barWidth + this.#gapWidth) + this.#barWidth / 2 - horizontalSpace / 2 + Math.sin(rotation) * height;
             label.setAttribute('transform', `translate(${x} ${y}) rotate(-${this.#xLabelsRotation})`);
         }
     }
@@ -255,15 +255,17 @@ export default class BarChart extends HTMLElement{
             const labelValue = this.#yLabels[i];
             const label = this.#yLabelElements[i];
             const {width, height} = label.getBBox();
-            const y = this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - this.#contentHeight * (labelValue - this.#minValue) / (this.#maxValue - this.#minValue);
-            label.setAttribute('y', y + height / 2);
-            const x = this.#padding + this.#yLegendWidth + this.#yLegendGap + this.#yLabelsWidth - width;
+            console.log(height);
+            const heightFraction = (labelValue - this.#minValue) / (this.#maxValue - this.#minValue); 
+            const y = this.#contentYStart + this.#contentHeight - this.#contentHeight * heightFraction;
+            label.setAttribute('y', y + 1 / 3 * height);
+            const x = this.#contentXStart - this.#yLabelsGap - width;
             label.setAttribute('x', x);
             if(this.#showHorizontalLines){
                 const line = createSVGElement('line');
-                this.#svgRoot.appendChild(line);
                 line.setAttribute('class', 'horizontalLine');
-                const x1 = this.#width - this.#padding - this.#contentWidth;
+                this.#svgRoot.appendChild(line);
+                const x1 = this.#contentXStart;
                 const x2 = x1 + this.#contentWidth;
                 line.setAttribute('x1', x1);
                 line.setAttribute('x2', x2);
@@ -273,10 +275,10 @@ export default class BarChart extends HTMLElement{
         }
     }
     
-    #initBars(){
+    #positionBars(){
         this.#bars = [];
         for(let i=0; i<this.#size; i++){
-            const x = this.#width - this.#padding - this.#contentWidth + i * (this.#barWidth + this.#gapWidth);
+            const x =this.#contentXStart + i * (this.#barWidth + this.#gapWidth);
             const bar = createSVGElement('rect');
             bar.setAttribute('class', 'bar');
             bar.setAttribute('x', x);
@@ -296,7 +298,7 @@ export default class BarChart extends HTMLElement{
         this.#bars.forEach((bar, i) => {
             const height = this.#contentHeight * (values[i] - min) / (max - min);
             bar.setAttribute('height', height);
-            bar.setAttribute('y', this.#padding + this.#titleHeight + this.#titleGap + this.#contentHeight - height)
+            bar.setAttribute('y', this.#contentYStart + this.#contentHeight - height)
         });
     }
     
