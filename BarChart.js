@@ -40,6 +40,8 @@ export default class BarChart extends HTMLElement{
     #showHorizontalLines;
     #contentYStart;
     #contentXStart;
+    #xLabelsGap;
+    #xLegendGap;
 
     constructor(){
         super();
@@ -111,6 +113,8 @@ export default class BarChart extends HTMLElement{
         this.#titleGap = options.titleGap ?? 0;
         this.#yLabelsMapping = options.yLabelsMapping ?? null;
         this.#showHorizontalLines = options.showHorizontalLines ?? true;
+        this.#xLabelsGap = options.xLabelsGap ?? 0;
+        this.#xLegendGap = options.xLegendGap ?? 0;
 
         this.#svgRoot.setAttribute('viewBox', `0 0 ${this.#width} ${this.#height}`);
         this.#positionTitle();
@@ -118,7 +122,7 @@ export default class BarChart extends HTMLElement{
         this.#measureYLegendWidth();
         this.#measureXLabelsHeight();
         this.#contentYStart = this.#padding + this.#titleHeight + this.#titleGap;
-        this.#contentHeight = this.#height - this.#contentYStart - this.#padding - this.#xLabelsHeight - this.#xLegendHeight;
+        this.#contentHeight = this.#height - this.#contentYStart - this.#padding - this.#xLabelsGap - this.#xLabelsHeight - this.#xLegendGap - this.#xLegendHeight;
         this.#measureYLabelsWidth();
         this.#contentXStart = this.#padding + this.#yLegendWidth + this.#yLegendGap + this.#yLabelsWidth + this.#yLabelsGap;
         this.#contentWidth = this.#width - this.#contentXStart - this.#padding;
@@ -242,7 +246,7 @@ export default class BarChart extends HTMLElement{
             const {width, height} = label.getBBox();
             const horizontalSpace = Math.sin(rotation) * height + Math.cos(rotation) * width;
             const verticalSpace = Math.sin(rotation) * width + Math.cos(rotation) * height;
-            const y = this.#contentYStart + this.#contentHeight + verticalSpace;
+            const y = this.#contentYStart + this.#contentHeight + this.#xLabelsGap + verticalSpace;
             const x = this.#contentXStart + i * (this.#barWidth + this.#gapWidth) + this.#barWidth / 2 - horizontalSpace / 2 + Math.sin(rotation) * height;
             label.setAttribute('transform', `translate(${x} ${y}) rotate(-${this.#xLabelsRotation})`);
         }
