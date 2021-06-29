@@ -8,40 +8,40 @@ export default class BarChart extends HTMLElement{
     #barWidth;
     #contentHeight;
     #contentWidth;
+    #contentXStart;
+    #contentYStart;
     #gapFraction;
     #gapWidth;
     #height;
     #maxValue;
     #minValue;
     #padding;
+    #showHorizontalLines;
     #size;
     #svgRoot;
+    #title;
+    #titleGap;
+    #titleHeight;
     #values;
     #width;
     #xLabelElements;
     #xLabels;
+    #xLabelsGap;
     #xLabelsHeight;
     #xLabelsRotation;
+    #xLegend;
+    #xLegendElement;
+    #xLegendGap;
+    #xLegendHeight;
     #yLabelElements;
     #yLabels;
     #yLabelsGap;
+    #yLabelsMapping;
     #yLabelsWidth;
-    #xLegend;
     #yLegend;
-    #xLegendHeight;
-    #yLegendWidth;
-    #xLegendElement;
     #yLegendElement;
     #yLegendGap;
-    #title;
-    #titleHeight;
-    #titleGap;
-    #yLabelsMapping;
-    #showHorizontalLines;
-    #contentYStart;
-    #contentXStart;
-    #xLabelsGap;
-    #xLegendGap;
+    #yLegendWidth;
 
     constructor(){
         super();
@@ -60,6 +60,8 @@ export default class BarChart extends HTMLElement{
                     margin: var(--margin, 0);
                     border: var(--border);
                     border-radius: var(--border-radius);
+                    --default-text-fill: var(--text-fill, #616161);
+                    --default-text-font: var(--text-font, 16px Arial, Helvetica, sans-serif);
                 }
 
                 .background{
@@ -74,12 +76,33 @@ export default class BarChart extends HTMLElement{
                     ry: var(--bar-ry, 2);
                 }
 
-                text{
-                    fill: var(--labels-fill, #616161);
-                    font: var(--labels-font, 16px Arial, Helvetica, sans-serif)
+                
+                .title{
+                    fill: var(--title-fill, var(--default-text-fill));
+                    font: var(--title-font, var(--default-text-font));
                 }
-
-                .horizontalLine{
+                
+                .x-label{
+                    fill: var(--x-label-fill, var(--default-text-fill));
+                    font: var(--x-label-font, var(--default-text-font));
+                }
+                
+                .y-label{
+                    fill: var(--y-label-fill, var(--default-text-fill));
+                    font: var(--y-label-font, var(--default-text-font));
+                }
+                
+                .x-legend{
+                    fill: var(--x-legend-fill, var(--default-text-fill));
+                    font: var(--x-legend-font, var(--default-text-font));
+                }
+                
+                .y-legend{
+                    fill: var(--y-legend-fill, var(--default-text-fill));
+                    font: var(--y-legend-font, var(--default-text-font));
+                }
+                
+                .horizontal-line{
                     stroke: var(--horizontal-line-stroke, #BDBDBD);
                     stroke-width: var(--horizontal-line-stroke-width, 2);
                 }
@@ -97,7 +120,6 @@ export default class BarChart extends HTMLElement{
         this.#height = options.height ?? 400;
         this.#padding = options.padding ?? 10;
         this.#xLabelsRotation = options.xLabelsRotation ?? 0;
-        // Fraction of the content width for the gaps between the bars:
         this.#gapFraction = options.gapFraction ?? 0.2;
         this.#xLabels = options.xLabels ?? [];
         this.#yLabels = options.yLabels ?? [];
@@ -155,7 +177,7 @@ export default class BarChart extends HTMLElement{
         if(this.#xLegend){
             const legend = createSVGElement('text');
             legend.textContent = this.#xLegend;
-            legend.setAttribute('class', 'xLegend');
+            legend.setAttribute('class', 'x-legend');
             this.#svgRoot.appendChild(legend);
             this.#xLegendHeight = legend.getBBox().height;
             this.#xLegendElement = legend;
@@ -169,7 +191,7 @@ export default class BarChart extends HTMLElement{
         if(this.#yLegend){
             const legend = createSVGElement('text');
             legend.textContent = this.#yLegend;
-            legend.setAttribute('class', 'yLegend');
+            legend.setAttribute('class', 'y-legend');
             this.#svgRoot.appendChild(legend);
             this.#yLegendWidth = legend.getBBox().height;
             this.#yLegendElement = legend;
@@ -183,11 +205,9 @@ export default class BarChart extends HTMLElement{
         const rotation = Math.PI / 180 * this.#xLabelsRotation;
         let maxVerticalSpace = 0;
         this.#xLabelElements = [];
-        // Create the x axis labels and compute the maximum
-        // vertical space they use:
         for(let i=0; i<this.#size && i<this.#xLabels.length; i++){
             const label = createSVGElement('text');
-            label.setAttribute('class', 'xLabel');
+            label.setAttribute('class', 'x-label');
             this.#svgRoot.appendChild(label);
             this.#xLabelElements.push(label);
             label.textContent = this.#xLabels[i];
@@ -199,13 +219,11 @@ export default class BarChart extends HTMLElement{
     }
     
     #measureYLabelsWidth(){
-        // Create the y axis labels and compute the maximum
-        // horizontal space they use:
         this.#yLabelElements = [];
         let maxHorizontalSpace = 0;
         for(let i=0; i<this.#yLabels.length; i++){
             const label = createSVGElement('text');
-            label.setAttribute('class', 'yLabel');
+            label.setAttribute('class', 'y-label');
             if(this.#yLabelsMapping){
                 label.textContent = this.#yLabelsMapping[i];
             }else{
@@ -238,8 +256,6 @@ export default class BarChart extends HTMLElement{
     }
     
     #positionXLabels(){
-        // Position the x axis labels aligned to the top of
-        // the maximum vertical space they use
         const rotation = Math.PI / 180 * this.#xLabelsRotation;
         for(let i=0; i<this.#xLabelElements.length; i++){
             const label = this.#xLabelElements[i];
@@ -253,13 +269,10 @@ export default class BarChart extends HTMLElement{
     }
     
     #positionYLabels(){
-        // Position the y axis labels aligned to the right of
-        // the maximum horizontal space they use
         for(let i=0; i<this.#yLabels.length; i++){
             const labelValue = this.#yLabels[i];
             const label = this.#yLabelElements[i];
             const {width, height} = label.getBBox();
-            console.log(height);
             const heightFraction = (labelValue - this.#minValue) / (this.#maxValue - this.#minValue); 
             const y = this.#contentYStart + this.#contentHeight - this.#contentHeight * heightFraction;
             label.setAttribute('y', y + 1 / 3 * height);
@@ -267,7 +280,7 @@ export default class BarChart extends HTMLElement{
             label.setAttribute('x', x);
             if(this.#showHorizontalLines){
                 const line = createSVGElement('line');
-                line.setAttribute('class', 'horizontalLine');
+                line.setAttribute('class', 'horizontal-line');
                 this.#svgRoot.appendChild(line);
                 const x1 = this.#contentXStart;
                 const x2 = x1 + this.#contentWidth;
