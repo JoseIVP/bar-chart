@@ -165,7 +165,7 @@ export default class BarChart extends HTMLElement{
      * value of the maximum label provided for the Y axis, if those are present.
      * If there are no labels for the Y axis, then the hight of the bars will be
      * relative to the height of the bar with the maximum value.
-     * @param {*[]} [options.xLabels=[]] - The labels of the X axis.
+     * @param {(string[]|number[])} [options.xLabels=[]] - The labels of the X axis.
      * @param {number} [options.xLabelsGap=0] - The gap between the labels of
      * the X axis and the bars of the chart.
      * @param {number} [options.xLabelsRotation=0] - The rotation in degrees of
