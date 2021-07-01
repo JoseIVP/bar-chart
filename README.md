@@ -35,9 +35,12 @@ an example of how to use it, or take a look at this
 | `--y-legend-fill` | `var(--text-fill)` | The SVG fill for the y-legend. |
 | `--y-legend-font` | `var(--text-font)` | The SVG font for the y-legend. |
 
-## Functions
+
+## Constructor and methods
 
 <dl>
+<dt>new BarChart()</dt>
+<dd><p>Creates a new BarChart instance.</p></dd>
 <dt><a href="#plot">plot([options])</a></dt>
 <dd><p>Configures and shows the chart.</p>
 </dd>
@@ -50,8 +53,6 @@ an example of how to use it, or take a look at this
 
 ## plot([options])
 Configures and shows the chart.
-
-**Kind**: global function  
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -82,8 +83,6 @@ Configures and shows the chart.
 
 ## update(values)
 Updates the bars of the chart with an array of values.
-
-**Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
