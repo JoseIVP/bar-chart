@@ -1,0 +1,22 @@
+{
+  "name": "bar-chart",
+  "version": "1.0.0",
+  "description": "A simple web component for a bar chart.",
+  "main": "BarChart.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoseIVP/bar-chart.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoseIVP/bar-chart/issues"
+  },
+  "homepage": "https://github.com/JoseIVP/bar-chart#readme",
+  "devDependencies": {
+    "jsdoc-to-markdown": "^7.0.1"
+  }
+}
