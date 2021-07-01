@@ -8,32 +8,32 @@ an example of how to use it, or take a look at this
 
 | Property | Default | Description |
 | --- | --- | --- |
-| --background-fill | #EEEEEE | The SVG fill of the background. |
-| --bar-fill | #BDBDBD | The SVG fill of the bars. |
-| --bar-rx | 2 | The SVG rx (x-axis radius) of the bars. |
-| --bar-ry | 2 | The SVG ry (y-axis radius) of the bars. |
-| --bar-stroke | #9E9E9E | The SVG stroke of the bars. |
-| --bar-stroke-width | 2 | The SVG width for the stroke of the bars. |
-| --border | none | The  CSS border property of the component. |
-| --border-radius | 0 | The CSS border-radius property of the component. |
-| --box-shadow | none | The CSS box-shadow property of the component. |
-| --height | auto | The CSS height of the component. |
-| --horizontal-line-stroke | #BDBDBD | The SVG stroke for the horizontal lines of the y-axis labels. |
-| --horizontal-line-stroke-width | 2 | The SVG stroke-width for the horizontal lines of the y-axis labels. |
-| --margin | 0 | The CSS margin of the component. |
-| --text-fill | #616161 | The SVG fill for all the text in the component. |
-| --text-font | 16px Arial, Helvetica, sans-serif | The SVG font for all the text in the component. |
-| --title-fill | var(--text-fill) | The SVG fill for the title. |
-| --title-font | var(--text-font) | The SVG font for the title. |
-| --width | auto | The CSS width of the component. |
-| --x-label-fill | var(--text-fill) | The SVG fill for the x-label. |
-| --x-label-font | var(--text-font) | The SVG font for the x-label. |
-| --x-legend-fill | var(--text-fill) | The SVG fill for the x-legend. |
-| --x-legend-font | var(--text-font) | The SVG font for the x-legend. |
-| --y-label-fill | var(--text-fill) | The SVG fill for the y-label. |
-| --y-label-font | var(--text-font) | The SVG font for the y-label. |
-| --y-legend-fill | var(--text-fill) | The SVG fill for the y-legend. |
-| --y-legend-font | var(--text-font) | The SVG font for the y-legend. |
+| `--background-fill` | `#EEEEEE` | The SVG fill of the background. |
+| `--bar-fill` | `#BDBDBD` | The SVG fill of the bars. |
+| `--bar-rx` | `2` | The SVG rx (x-axis radius) of the bars. |
+| `--bar-ry` | `2` | The SVG ry (y-axis radius) of the bars. |
+| `--bar-stroke` | `#9E9E9E` | The SVG stroke of the bars. |
+| `--bar-stroke-width` | `2` | The SVG width for the stroke of the bars. |
+| `--border` | `none` | The  CSS border property of the component. |
+| `--border-radius` | `0` | The CSS border-radius property of the component. |
+| `--box-shadow` | `none` | The CSS box-shadow property of the component. |
+| `--height` | `auto` | The CSS height of the component. |
+| `--horizontal-line-stroke` | `#BDBDBD` | The SVG stroke for the horizontal lines of the y-axis labels. |
+| `--horizontal-line-stroke-width` | `2` | The SVG stroke-width for the horizontal lines of the y-axis labels. |
+| `--margin` | `0` | The CSS margin of the component. |
+| `--text-fill` | `#616161` | The SVG fill for all the text in the component. |
+| `--text-font` | `16px Arial, Helvetica, sans-serif` | The SVG font for all the text in the component. |
+| `--title-fill` | `var(--text-fill)` | The SVG fill for the title. |
+| `--title-font` | `var(--text-font)` | The SVG font for the title. |
+| `--width` | `auto` | The CSS width of the component. |
+| `--x-label-fill` | `var(--text-fill)` | The SVG fill for the x-label. |
+| `--x-label-font` | `var(--text-font)` | The SVG font for the x-label. |
+| `--x-legend-fill` | `var(--text-fill)` | The SVG fill for the x-legend. |
+| `--x-legend-font` | `var(--text-font)` | The SVG font for the x-legend. |
+| `--y-label-fill` | `var(--text-fill)` | The SVG fill for the y-label. |
+| `--y-label-font` | `var(--text-font)` | The SVG font for the y-label. |
+| `--y-legend-fill` | `var(--text-fill)` | The SVG fill for the y-legend. |
+| `--y-legend-font` | `var(--text-font)` | The SVG font for the y-legend. |
 
 ## Functions
 
