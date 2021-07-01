@@ -4,35 +4,35 @@ function createSVGElement(tagName){
 
 /**
  * A web component for creating bar charts.
- * Here is a list of all the CSS custom properties available:
- * --background-fill
- * --bar-fill
- * --bar-rx
- * --bar-ry
- * --bar-stroke
- * --bar-stroke-width
- * --border
- * --border-radius
- * --box-shadow
- * --default-text-fill
- * --default-text-font
- * --height
- * --horizontal-line-stroke
- * --horizontal-line-stroke-width
- * --margin
- * --text-fill
- * --text-font
- * --title-fill
- * --title-font
- * --width
- * --x-label-fill
- * --x-label-font
- * --x-legend-fill
- * --x-legend-font
- * --y-label-fill
- * --y-label-font
- * --y-legend-fill
- * --y-legend-font
+ * Here is a list of all the CSS custom properties available, with their default
+ * value and a description:
+ * 
+ * --background-fill: #EEEEEE - The SVG fill of the background.
+ * --bar-fill: #BDBDBD - The SVG fill of the bars.
+ * --bar-rx: 2 - The SVG rx (x-axis radius) of the bars.
+ * --bar-ry: 2 - The SVG ry (y-axis radius) of the bars.
+ * --bar-stroke: #9E9E9E - The SVG stroke of the bars.
+ * --bar-stroke-width: 2 - The SVG width for the stroke of the bars.
+ * --border: none - The  CSS border property of the component.
+ * --border-radius: 0 - The CSS border-radius property of the component.
+ * --box-shadow: none - The CSS box-shadow property of the component.
+ * --height: auto - The CSS height of the component.
+ * --horizontal-line-stroke: #BDBDBD - The SVG stroke for the horizontal lines of the y-axis labels.
+ * --horizontal-line-stroke-width: 2 - The SVG stroke-width for the horizontal lines of the y-axis labels.
+ * --margin: 0 - The CSS margin of the component.
+ * --text-fill: #616161 - The SVG fill for all the text in the component.
+ * --text-font: 16px Arial, Helvetica, sans-serif - The SVG font for all the text in the component.
+ * --title-fill: var(--text-fill) - The SVG fill for the title.
+ * --title-font: var(--text-font) - The SVG font for the title.
+ * --width: auto - The CSS width of the component.
+ * --x-label-fill: var(--text-fill) - The SVG fill for the x-label.
+ * --x-label-font: var(--text-font) - The SVG font for the x-label.
+ * --x-legend-fill: var(--text-fill) - The SVG fill for the x-legend.
+ * --x-legend-font: var(--text-font) - The SVG font for the x-legend.
+ * --y-label-fill: var(--text-fill) - The SVG fill for the y-label.
+ * --y-label-font: var(--text-font) - The SVG font for the y-label.
+ * --y-legend-fill: var(--text-fill) - The SVG fill for the y-legend.
+ * --y-legend-font: var(--text-font) - The SVG font for the y-legend.
  */
 export default class BarChart extends HTMLElement{
 
@@ -75,77 +75,12 @@ export default class BarChart extends HTMLElement{
     #yLegendGap;
     #yLegendWidth;
 
+    /**
+     * Creates a new BarChart instance.
+     */
     constructor(){
         super();
         this.attachShadow({mode: 'open'});
-    }
-    
-    /**
-     * Renders the component's HTML and base SVG tags.
-     * @private
-     */
-    #render(){
-        this.shadowRoot.innerHTML = /*html*/`
-            <style>
-                svg{
-                    display: block;
-                    width: var(--width);
-                    height: var(--height);
-                    box-shadow: var(--box-shadow);
-                    margin: var(--margin, 0);
-                    border: var(--border);
-                    border-radius: var(--border-radius);
-                    --default-text-fill: var(--text-fill, #616161);
-                    --default-text-font: var(--text-font, 16px Arial, Helvetica, sans-serif);
-                }
-
-                .background{
-                    fill: var(--background-fill, #EEEEEE);
-                }
-
-                .bar{
-                    fill: var(--bar-fill, #BDBDBD);
-                    stroke: var(--bar-stroke, #9E9E9E);
-                    stroke-width: var(--bar-stroke-width, 2);
-                    rx: var(--bar-rx, 2);
-                    ry: var(--bar-ry, 2);
-                }
-
-                .title{
-                    fill: var(--title-fill, var(--default-text-fill));
-                    font: var(--title-font, var(--default-text-font));
-                }
-                
-                .x-label{
-                    fill: var(--x-label-fill, var(--default-text-fill));
-                    font: var(--x-label-font, var(--default-text-font));
-                }
-                
-                .y-label{
-                    fill: var(--y-label-fill, var(--default-text-fill));
-                    font: var(--y-label-font, var(--default-text-font));
-                }
-                
-                .x-legend{
-                    fill: var(--x-legend-fill, var(--default-text-fill));
-                    font: var(--x-legend-font, var(--default-text-font));
-                }
-                
-                .y-legend{
-                    fill: var(--y-legend-fill, var(--default-text-fill));
-                    font: var(--y-legend-font, var(--default-text-font));
-                }
-                
-                .horizontal-line{
-                    stroke: var(--horizontal-line-stroke, #BDBDBD);
-                    stroke-width: var(--horizontal-line-stroke-width, 2);
-                }
-            </style>
-            <svg>
-                <rect class="background" width="100%" height="100%"/>
-            </svg>
-        `;
-        this.#svgRoot = this.shadowRoot.querySelector('svg');
     }
     
     /**
@@ -231,6 +166,90 @@ export default class BarChart extends HTMLElement{
         this.#positionXLabels();
         this.#positionYLabels();
         this.#positionBars();
+    }
+    
+    /**
+     * Updates the bars of the chart with an array of values.
+     * @param {number[]} values - The array of values with which to update the
+     * chart.
+     */
+    update(values){
+        this.#values = values;
+        const min = this.#minValue;
+        const max = this.#maxValue ?? Math.max(...values);
+        this.#bars.forEach((bar, i) => {
+            const height = this.#contentHeight * (values[i] - min) / (max - min);
+            bar.setAttribute('height', height);
+            bar.setAttribute('y', this.#contentYStart + this.#contentHeight - height)
+        });
+    }
+    
+    /**
+     * Renders the component's HTML and base SVG tags.
+     * @private
+     */
+    #render(){
+        this.shadowRoot.innerHTML = /*html*/`
+            <style>
+                svg{
+                    display: block;
+                    width: var(--width);
+                    height: var(--height);
+                    box-shadow: var(--box-shadow);
+                    margin: var(--margin, 0);
+                    border: var(--border);
+                    border-radius: var(--border-radius);
+                    --default-text-fill: var(--text-fill, #616161);
+                    --default-text-font: var(--text-font, 16px Arial, Helvetica, sans-serif);
+                }
+
+                .background{
+                    fill: var(--background-fill, #EEEEEE);
+                }
+
+                .bar{
+                    fill: var(--bar-fill, #BDBDBD);
+                    stroke: var(--bar-stroke, #9E9E9E);
+                    stroke-width: var(--bar-stroke-width, 2);
+                    rx: var(--bar-rx, 2);
+                    ry: var(--bar-ry, 2);
+                }
+
+                .title{
+                    fill: var(--title-fill, var(--default-text-fill));
+                    font: var(--title-font, var(--default-text-font));
+                }
+                
+                .x-label{
+                    fill: var(--x-label-fill, var(--default-text-fill));
+                    font: var(--x-label-font, var(--default-text-font));
+                }
+                
+                .y-label{
+                    fill: var(--y-label-fill, var(--default-text-fill));
+                    font: var(--y-label-font, var(--default-text-font));
+                }
+                
+                .x-legend{
+                    fill: var(--x-legend-fill, var(--default-text-fill));
+                    font: var(--x-legend-font, var(--default-text-font));
+                }
+                
+                .y-legend{
+                    fill: var(--y-legend-fill, var(--default-text-fill));
+                    font: var(--y-legend-font, var(--default-text-font));
+                }
+                
+                .horizontal-line{
+                    stroke: var(--horizontal-line-stroke, #BDBDBD);
+                    stroke-width: var(--horizontal-line-stroke-width, 2);
+                }
+            </style>
+            <svg>
+                <rect class="background" width="100%" height="100%"/>
+            </svg>
+        `;
+        this.#svgRoot = this.shadowRoot.querySelector('svg');
     }
 
     /**
@@ -429,22 +448,6 @@ export default class BarChart extends HTMLElement{
         if(this.#values.length > 0){
             this.update(this.#values);
         }
-    }
-    
-    /**
-     * Updates the bars of the chart with an array of values.
-     * @param {number[]} values - The array of values with which to update the
-     * chart.
-     */
-    update(values){
-        this.#values = values;
-        const min = this.#minValue;
-        const max = this.#maxValue ?? Math.max(...values);
-        this.#bars.forEach((bar, i) => {
-            const height = this.#contentHeight * (values[i] - min) / (max - min);
-            bar.setAttribute('height', height);
-            bar.setAttribute('y', this.#contentYStart + this.#contentHeight - height)
-        });
     }
     
 }
